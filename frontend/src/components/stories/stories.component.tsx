@@ -98,7 +98,7 @@ const StoriesComponent = () => {
   return (
     <div className="bg-gradient-to-br animate-gradient-slow min-h-screen">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-6 flex justify-between">
+        <div className="py-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link to="/">
             <div className="!rounded-button bg-gradient-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 text-gray-300 px-3 py-2 flex items-center gap-2 transition-all duration-300 rounded">
               <i className="fa-solid fa-left-long"></i> BACK
@@ -140,7 +140,7 @@ const StoriesComponent = () => {
         </div>
 
         <div className="mt-11">
-          <h1 className="text-gray-300 text-4xl font-extrabold text-center mb-12 leading-snug drop-shadow-lg tracking-wide">
+          <h1 className="text-gray-300 text-2xl sm:text-3xl md:text-4xl font-extrabold text-center mb-12 leading-snug drop-shadow-lg tracking-wide">
             ✨ Enter Prompt –{" "}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-blue-400">
               Generate Story Today!
@@ -154,12 +154,12 @@ const StoriesComponent = () => {
                 <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                   <textarea
                     {...register("prompt")}
-                    className="w-full h-40 resize-none border-none outline-none bg-transparent text-gray-300 focus:ring-0 text-lg leading-relaxed tracking-wide placeholder:italic placeholder:text-gray-500"
+                    className="w-full h-32 sm:h-40 resize-none border-none outline-none bg-transparent text-gray-300 focus:ring-0 text-lg leading-relaxed tracking-wide placeholder:italic placeholder:text-gray-500"
                     placeholder="Every great story begins with a single idea. What’s yours?"
                     value={textareaValue}
                     onChange={(e) => setTextareaValue(e.target.value)}
                   ></textarea>
-                  <div className="absolute bottom-3 right-3 flex items-center space-x-2">
+                  <div className="flex justify-end mt-2 w-full">
                     <button
                       type="submit"
                       disabled={loading}
