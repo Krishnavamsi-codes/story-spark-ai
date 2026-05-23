@@ -41,7 +41,7 @@ const CommunityComponent: React.FC = () => {
                 JOIN DISCORD
               </button>
             </a>
-            <Link to="/community#guidelines" className="w-full sm:w-auto">
+            <Link to="/guidelines" className="w-full sm:w-auto">
               <button className="w-full !rounded-button bg-transparent border border-white/20 hover:bg-white/5 text-white px-10 py-4 font-bold transition-all cursor-pointer">
                 VIEW GUIDELINES
               </button>
@@ -107,14 +107,16 @@ const CommunityComponent: React.FC = () => {
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="flex items-center justify-between mb-12">
           <h2 className="text-3xl font-bold">Writing Resources</h2>
-          <button className="!rounded-button text-sm font-semibold px-6 py-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
-            BROWSE ALL
-          </button>
+          <Link to="/resources">
+            <button className="!rounded-button text-sm font-semibold px-6 py-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+              BROWSE ALL
+            </button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {resources.map((resource, idx) => (
-            <div key={idx} className="p-8 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-blue-500/30 transition-all group cursor-pointer">
+            <Link key={idx} to={`/resources/${resource.slug}`} className="p-8 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-blue-500/30 transition-all group cursor-pointer block text-left">
               <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform">
                 <i className={`fa-solid ${resource.icon} text-xl`}></i>
               </div>
@@ -127,7 +129,7 @@ const CommunityComponent: React.FC = () => {
               <div className="flex items-center text-gray-500 text-sm font-medium">
                 <i className="fa-regular fa-clock mr-2 text-blue-400"></i> {resource.readTime} read
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
