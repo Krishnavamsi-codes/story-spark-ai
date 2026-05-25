@@ -24,7 +24,11 @@ const PostDetailsComponent = () => {
   const { id } = useParams();
   const { data: post, isLoading } = useGetPostByIdQuery(id || "");
   const tag = post?.tag;
-    const { data: relatedPost } = useGetPostByTagQuery({ tag: tag || "", excludeId: post?._id || "" });
+
+  const { data: relatedPost } = useGetPostByTagQuery({
+    tag: tag || "",
+    excludeId: post?._id,
+  });
   const [toggleReaction] = useToggleReactionMutation();
   const currentUser = getUserInfo();
   const authorId = post?.author?._id;
@@ -165,9 +169,7 @@ const PostDetailsComponent = () => {
                   }`}
                 >
                   <i
-                    className={`${
-                      hasUserReacted ? "fas" : "far"
-                    } fa-heart`}
+                    className={`${hasUserReacted ? "fas" : "far"} fa-heart`}
                   ></i>
                   <span>{post?.likesCount}</span>
                 </button>
@@ -180,7 +182,9 @@ const PostDetailsComponent = () => {
                 )}
               </div>
               <div className="flex items-center space-x-3 bg-slate-800/40 backdrop-blur-md px-4 py-2 rounded-full border border-slate-700/50 shadow-sm">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 select-none">Share:</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 select-none">
+                  Share:
+                </span>
                 <button
                   id="share-twitter-btn"
                   onClick={handleTwitterShare}
@@ -218,7 +222,10 @@ const PostDetailsComponent = () => {
               <h3 className="text-xl font-semibold mb-4 text-slate-900 dark:text-gray-300">
                 Related Stories
               </h3>
-              <RelatedStoriesComponent posts={relatedPost || []} currentPostId={post?._id || ""} />
+              <RelatedStoriesComponent
+                posts={relatedPost || []}
+                currentPostId={post?._id || ""}
+              />
             </div>
           </div>
         </div>
