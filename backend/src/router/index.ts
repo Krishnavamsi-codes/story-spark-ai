@@ -11,8 +11,7 @@ import { ReviewRouter } from "../app/modules/review/review.router";
 import { ReactionRouter } from "../app/modules/reaction/reaction.router";
 
 import { NewsletterRouter } from "../app/modules/newsletter/newsletter.route";
-
-
+import paymentRouter from "../router/payment.route";
 
 // alongside the other routes:
 
@@ -69,6 +68,10 @@ const modules = [
   {
     path: "/bookmarks",
     router: BookmarkRouter,
+  },
+  {
+    path: "/payment",
+    router: paymentRouter,
   },
 ];
 modules.forEach((route) => router.use(route.path, route.router));
