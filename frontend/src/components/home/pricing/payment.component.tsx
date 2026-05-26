@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from "lucide-react";
 import { loadRazorpayScript } from "../../../utils/loadRazorpay";
 
 const PaymentComponent = () => {
@@ -70,53 +71,90 @@ const PaymentComponent = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: "#0a0f1e" }}
-    >
-      <div
-        className="flex flex-col items-center gap-8 p-12 rounded-2xl w-full max-w-md"
-        style={{
-          backgroundColor: "#0d1526",
-          boxShadow: "0 0 40px rgba(37, 99, 235, 0.15)",
-        }}
-      >
-        <h1 className="text-4xl font-extrabold tracking-tight leading-tight text-white text-center">
-          Complete Your Subscription
-        </h1>
+    <div className="gradient-bg min-h-screen px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center justify-center">
+        <div className="grid w-full gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <section className="motion-card rounded-[2rem] border border-slate-700/50 bg-slate-950/75 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur-xl sm:p-8">
+            <div className="mb-8 flex items-start justify-between gap-4">
+              <div>
+                <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+                  Secure checkout
+                </span>
+                <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                  Complete Your Subscription
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+                  Finish your upgrade with a clean, encrypted payment flow powered by Razorpay.
+                </p>
+              </div>
+              <div className="hidden rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-3 text-cyan-300 sm:block">
+                <CreditCard size={22} />
+              </div>
+            </div>
 
-        <p className="text-slate-400 text-lg text-center">
-          Unlock premium features and take your storytelling to the next level.
-        </p>
+            {/* Razorpay pay button — opens the Razorpay checkout modal */}
+            <button
+              onClick={() => handlePayment(499)}
+              className="motion-cta inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-4 text-base font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:shadow-cyan-500/30"
+            >
+              <ShieldCheck size={18} />
+              ⚡ Pay ₹499 with Razorpay
+            </button>
 
-        <button
-          onClick={() => handlePayment(499)}
-          className="w-full sm:w-auto px-8 py-4 font-bold text-lg text-white rounded-xl flex items-center justify-center gap-2"
-          style={{
-            backgroundColor: "#2563eb",
-            boxShadow: "0 0 20px rgba(37, 99, 235, 0.3)",
-            transition: "transform 180ms ease, box-shadow 220ms ease, background-color 180ms ease",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#1d4ed8";
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 34px rgba(37, 99, 235, 0.52)";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px) scale(1.01)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#2563eb";
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 20px rgba(37, 99, 235, 0.3)";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateZ(0)";
-          }}
-        >
-          ⚡ Pay ₹499 with Razorpay
-        </button>
+            <p className="mt-4 text-xs leading-5 text-slate-400">
+              Your payment is securely processed by Razorpay. We never store your card details.
+            </p>
 
-        <Link
-          to="/pricing"
-          className="text-slate-400 text-center hover:text-white hover:underline transition-colors"
-        >
-          ← Back to Pricing
-        </Link>
+            <Link
+              to="/pricing"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-300 transition hover:text-cyan-300"
+            >
+              <ArrowLeft size={16} />
+              Back to Pricing
+            </Link>
+          </section>
+
+          <aside className="motion-card rounded-[2rem] border border-slate-700/50 bg-slate-950/55 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-emerald-300">
+                <CheckCircle2 size={22} />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-white">What you get</h2>
+                <p className="text-sm text-slate-400">A quick summary before you confirm.</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900/70 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm text-slate-300">Premium subscription</span>
+                <span className="text-lg font-semibold text-white">₹499/mo</span>
+              </div>
+              <div className="h-px bg-slate-800" />
+              <ul className="space-y-3 text-sm text-slate-300">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-cyan-300" />
+                  Unlimited AI writing tools
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-cyan-300" />
+                  Priority access to premium features
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-cyan-300" />
+                  Cancel anytime from your account settings
+                </li>
+              </ul>
+            </div>
+
+            <div className="mt-6 rounded-3xl border border-cyan-400/10 bg-cyan-400/5 p-5">
+              <p className="text-sm font-medium text-cyan-200">Need help?</p>
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                If your payment fails, please try again or contact our support team.
+              </p>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
