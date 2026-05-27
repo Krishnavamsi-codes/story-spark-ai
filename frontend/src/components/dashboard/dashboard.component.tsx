@@ -1,8 +1,4 @@
 import { useGetDashboardAnalysisQuery } from "../../redux/apis/analysis.api";
-import TopicsChart from "../chart/dashboard/bar_chart";
-import SubscriptionChart from "../chart/dashboard/doughnut_chart";
-import PostsPerMonthChart from "../chart/dashboard/line_chart";
-import UsersPieChart from "../chart/dashboard/pai_chart";
 import LoadingAnimation from "../loading/loading.component";
 
 const DashboardComponent = () => {
@@ -84,7 +80,7 @@ const DashboardComponent = () => {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
               <span className="text-[10px] uppercase tracking-widest text-blue-300 font-semibold">
-                Live Analytics Dashboard
+                Dashboard Overview
               </span>
             </div>
 
@@ -93,8 +89,7 @@ const DashboardComponent = () => {
             </h1>
 
             <p className="text-slate-400 text-base max-w-xl">
-              Monitor platform growth, track engagement, and manage your
-              ecosystem through a modern analytics experience.
+              Monitor platform growth and manage your content from a single dashboard.
             </p>
           </div>
         </div>
@@ -138,41 +133,6 @@ const DashboardComponent = () => {
           <p className="text-slate-400">
             Dashboard insights are currently unavailable.
           </p>
-        </div>
-      )}
-
-      {/* CHARTS GRID */}
-      {data && (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="rounded-2xl border border-blue-500/15 bg-white/[0.02] p-6">
-            <h2 className="text-lg font-bold text-white mb-4">
-              Users Distribution
-            </h2>
-
-            <UsersPieChart data={data.users} />
-          </div>
-
-          <div className="rounded-2xl border border-emerald-500/15 bg-white/[0.02] p-6">
-            <h2 className="text-lg font-bold text-white mb-4">
-              Subscription Overview
-            </h2>
-
-            <SubscriptionChart data={data.subscriptionTypes} />
-          </div>
-
-          <div className="rounded-2xl border border-violet-500/15 bg-white/[0.02] p-6">
-            <h2 className="text-lg font-bold text-white mb-4">Monthly Posts</h2>
-
-            <PostsPerMonthChart perMonth={data.posts.perMonth} />
-          </div>
-
-          <div className="rounded-2xl border border-amber-500/15 bg-white/[0.02] p-6">
-            <h2 className="text-lg font-bold text-white mb-4">
-              Topics Analytics
-            </h2>
-
-            <TopicsChart topics={data.posts.topics} />
-          </div>
         </div>
       )}
     </div>
