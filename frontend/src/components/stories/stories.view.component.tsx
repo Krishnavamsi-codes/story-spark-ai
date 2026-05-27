@@ -539,13 +539,111 @@ ${content}
     return Math.max(1, Math.ceil(words / 200));
   };
 
-if (isLoading) {
-  return (
-    <div className="flex items-center justify-center py-20">
-      <StoryGeneratingAnimation />
-    </div>
-  );
-}
+  if (isLoading) {
+    return (
+      <div className="mt-16 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto pb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-pulse">
+          {/* Main Story Panel */}
+          <div className="col-span-1 lg:col-span-8 flex flex-col">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+              <div className="h-8 bg-slate-300 dark:bg-slate-700/50 rounded-lg w-2/3 mb-2" />
+              <div className="flex -space-x-5">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="w-16 h-16 rounded-full border-2 border-white/10 bg-slate-200 dark:bg-slate-800" />
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+              <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute bottom-[-50px] left-[-50px] w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10">
+                <div className="h-6 bg-slate-300 dark:bg-slate-700/50 rounded-md w-36" />
+                <div className="flex flex-wrap items-center gap-2">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-10 bg-slate-200 dark:bg-slate-700/60 rounded-lg w-24" />
+                  ))}
+                </div>
+              </div>
+
+              {/* Story text paragraphs */}
+              <div className="space-y-4 relative z-10">
+                {[...Array(12)].map((_, i) => {
+                  const widths = ["w-full", "w-11/12", "w-5/6", "w-full", "w-11/12", "w-4/5", "w-full", "w-11/12", "w-5/6", "w-full", "w-11/12", "w-2/3"];
+                  return (
+                    <div
+                      key={i}
+                      className={`h-4 bg-slate-200 dark:bg-slate-700/40 rounded-lg ${widths[i % widths.length]} ${
+                        i % 4 === 3 ? "mb-6" : ""
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Select Topics Box */}
+            <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl p-6 mt-7">
+              <div className="h-6 bg-slate-300 dark:bg-slate-700/50 rounded-md w-32 mb-4" />
+              <div className="h-10 bg-slate-200 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-600 rounded-lg w-full mb-4" />
+              <div className="flex flex-wrap gap-2">
+                {[...Array(6)].map((_, i) => {
+                  const tagWidths = ["w-20", "w-24", "w-16", "w-28", "w-20", "w-22"];
+                  return (
+                    <div key={i} className={`h-8 bg-slate-200 dark:bg-slate-700/40 rounded-full ${tagWidths[i % tagWidths.length]}`} />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Alternate Endings Box */}
+            <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl p-6 mt-8">
+              <div className="h-6 bg-slate-300 dark:bg-slate-700/50 rounded-md w-36 mb-2" />
+              <div className="h-3 bg-slate-200 dark:bg-slate-700/30 rounded-md w-64 mb-6" />
+              <div className="flex gap-4 border-b border-slate-200 dark:border-slate-700/50 pb-3 mb-6 overflow-x-auto scrollbar-none whitespace-nowrap">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-8 bg-slate-200 dark:bg-slate-700/40 rounded-md w-24 flex-shrink-0" />
+                ))}
+              </div>
+              <div className="space-y-4">
+                <div className="h-4 bg-slate-200 dark:bg-slate-700/40 rounded-lg w-full" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-700/40 rounded-lg w-5/6" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-700/40 rounded-lg w-4/5" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Preview Card Panel */}
+          <div className="col-span-1 lg:col-span-4">
+            <div className="mb-5">
+              <div className="h-8 bg-slate-300 dark:bg-slate-700/50 rounded-lg w-24" />
+            </div>
+            <div className="bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="relative flex flex-col">
+                <div className="relative m-3 overflow-hidden rounded-xl h-48 bg-slate-200 dark:bg-slate-700/50" />
+                <div className="px-3 py-4 space-y-4">
+                  <div className="flex justify-between items-center w-full">
+                    <div className="flex gap-2">
+                      <div className="h-6 bg-slate-300 dark:bg-purple-600/40 rounded-full w-20" />
+                      <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-16" />
+                    </div>
+                    <div className="h-6 w-6 bg-slate-300 dark:bg-slate-700 rounded-full" />
+                  </div>
+                  <div className="h-6 bg-slate-300 dark:bg-slate-700/50 rounded-md w-2/3" />
+                  <div className="space-y-2">
+                    <div className="h-3.5 bg-slate-200 dark:bg-slate-700/40 rounded-md w-full" />
+                    <div className="h-3.5 bg-slate-200 dark:bg-slate-700/40 rounded-md w-full" />
+                    <div className="h-3.5 bg-slate-200 dark:bg-slate-700/40 rounded-md w-5/6" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!selectedStory) {
     return null;
   }
