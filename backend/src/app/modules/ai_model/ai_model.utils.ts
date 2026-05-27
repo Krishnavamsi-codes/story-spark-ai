@@ -45,6 +45,34 @@ interface Story {
   language?: string;
 }
 
+// NEW: Map each tone label to a precise writing instruction injected into the AI prompt.
+// Keeping these as concrete directives (not vague adjectives) gives Gemini clear stylistic targets.
+const TONE_INSTRUCTIONS: Record<string, string> = {
+  Dark:
+    "Write in a dark, gritty, and emotionally heavy tone. Explore themes of shadow, loss, moral ambiguity, and consequence. Avoid happy resolutions — let tension linger.",
+  Humorous:
+    "Write in a light-hearted, witty, and comedic tone. Include clever wordplay, funny observations, and absurd situations. Keep the mood playful throughout.",
+  Romantic:
+    "Write in a warm, tender, and emotionally rich tone. Focus on connection, longing, vulnerability, and heartfelt moments between characters.",
+  Epic:
+    "Write in a grand, dramatic, and heroic tone. Use vivid, sweeping imagery, high stakes, and bold character actions. Every sentence should feel consequential.",
+  Mysterious:
+    "Write in a suspenseful, atmospheric, and unsettling tone. Leave things deliberately unsaid. Build intrigue through detail and implication rather than exposition.",
+  "Children's":
+    "Write in a simple, wholesome, imaginative, and age-appropriate tone. Use short sentences, gentle humour, and a sense of wonder. Suitable for readers aged 5–10.",
+};
+
+/**
+ * Returns the tone instruction string for injection into the prompt,
+ * or an empty string if no tone (or an unrecognised tone) is supplied.
+ */
+const buildToneInstruction = (tone?: string): string => {
+  if (!tone) return "";
+  const instruction = TONE_INSTRUCTIONS[tone];
+  if (!instruction) return "";
+  return `Tone & Style Directive: ${instruction}\n\n`;
+};
+
 const throwIfAborted = (signal?: AbortSignal): void => {
   if (signal?.aborted) {
     throw new GenerationAbortedError();
@@ -68,7 +96,8 @@ export async function generateWithGeminiStories(
   wordLength: number = 250,
   numStories: number = 2,
   language: string = "English",
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  tone?: string, // NEW: optional tone parameter
 ): Promise<Story[]> {
   throwIfAborted(signal);
 
@@ -77,17 +106,21 @@ export async function generateWithGeminiStories(
       {
         uuid: uuidv4(),
         title: "The Silent Watcher of the Reef",
-        content: "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water that allowed her to ascend safely back to the boat.",
+        content:
+          "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water that allowed her to ascend safely back to the boat.",
         tag: "Adventure",
-        imageURL: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=600&auto=format&fit=crop",
+        imageURL:
+          "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=600&auto=format&fit=crop",
       },
       {
         uuid: uuidv4(),
         title: "Lost Echoes of the Iron Citadel",
-        content: "The ruins of the Iron Citadel rose like rusted fingers from the salt flats of Arrakis-9. Major Vance adjusted his environmental suit as the twin suns began their descent. His sensors had picked up a rhythmic pulse originating from deep within the central chamber. It sounded like an old distress beacon, but this sector had been abandoned since the wars. Pushing past the heavy collapsed blast doors, Vance shone his light into the dark abyss. On the floor lay a deactivated service android, its power core long dead, yet its internal memory bank was warm to the touch. The story of what happened during the final siege was recorded here, waiting to be retrieved.",
+        content:
+          "The ruins of the Iron Citadel rose like rusted fingers from the salt flats of Arrakis-9. Major Vance adjusted his environmental suit as the twin suns began their descent. His sensors had picked up a rhythmic pulse originating from deep within the central chamber. It sounded like an old distress beacon, but this sector had been abandoned since the wars. Pushing past the heavy collapsed blast doors, Vance shone his light into the dark abyss. On the floor lay a deactivated service android, its power core long dead, yet its internal memory bank was warm to the touch. The story of what happened during the final siege was recorded here, waiting to be retrieved.",
         tag: "Sci-Fi",
-        imageURL: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop",
-      }
+        imageURL:
+          "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop",
+      },
     ];
   }
 
@@ -98,8 +131,12 @@ export async function generateWithGeminiStories(
       history: [],
     });
 
+    // NEW: Prepend the tone instruction block to the Gemini prompt when a tone is selected.
+    // This is the only change to the actual AI call — everything else stays identical.
+    const toneInstruction = buildToneInstruction(tone);
+
     const response = await chatSession.sendMessage(
-      `Generate ${numStories} different short stories based on the following prompt: "${prompt}".
+      `${toneInstruction}Generate ${numStories} different short stories based on the following prompt: "${prompt}".
         The stories MUST be written entirely in the ${language} language.
         Each story should be in JSON format with fields: "title", "content", and "tag".
         Ensure each story is approximately ${wordLength} words long.
@@ -152,29 +189,39 @@ export async function generateAlternateEndingsWithGemini(
     return [
       {
         style: "Happy Ending",
-        ending: "The diver reached the surface safely and the ray disappeared into the deep, leaving behind a glowing seashell that she kept as a token of the encounter.",
-        fullStory: "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water that allowed her to ascend safely back to the boat. The diver reached the surface safely and the ray disappeared into the deep, leaving behind a glowing seashell that she kept as a token of the encounter.",
+        ending:
+          "The diver reached the surface safely and the ray disappeared into the deep, leaving behind a glowing seashell that she kept as a token of the encounter.",
+        fullStory:
+          "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water that allowed her to ascend safely back to the boat. The diver reached the surface safely and the ray disappeared into the deep, leaving behind a glowing seashell that she kept as a token of the encounter.",
       },
       {
         style: "Dark Ending",
-        ending: "But the warmth was an illusion; the ray was merely drawing her deeper into the abyssal trenches where the light of the sun could never reach.",
-        fullStory: "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water. But the warmth was an illusion; the ray was merely drawing her deeper into the abyssal trenches where the light of the sun could never reach.",
+        ending:
+          "But the warmth was an illusion; the ray was merely drawing her deeper into the abyssal trenches where the light of the sun could never reach.",
+        fullStory:
+          "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water. But the warmth was an illusion; the ray was merely drawing her deeper into the abyssal trenches where the light of the sun could never reach.",
       },
       {
         style: "Plot Twist Ending",
-        ending: "When she looked at the ray's patterns, she realized they were not stars, but coordinate maps of the underwater ruins she was searching for.",
-        fullStory: "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water that allowed her to ascend safely back to the boat. When she looked at the ray's patterns, she realized they were not stars, but coordinate maps of the underwater ruins she was searching for.",
+        ending:
+          "When she looked at the ray's patterns, she realized they were not stars, but coordinate maps of the underwater ruins she was searching for.",
+        fullStory:
+          "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water that allowed her to ascend safely back to the boat. When she looked at the ray's patterns, she realized they were not stars, but coordinate maps of the underwater ruins she was searching for.",
       },
       {
         style: "Open Ending",
-        ending: "She blinked, finding herself on the beach, the sun high in the sky. She wasn't sure if it was a dream or if she had actually met the guardian.",
-        fullStory: "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current. She blinked, finding herself on the beach, the sun high in the sky. She wasn't sure if it was a dream or if she had actually met the guardian.",
+        ending:
+          "She blinked, finding herself on the beach, the sun high in the sky. She wasn't sure if it was a dream or if she had actually met the guardian.",
+        fullStory:
+          "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current. She blinked, finding herself on the beach, the sun high in the sky. She wasn't sure if it was a dream or if she had actually met the guardian.",
       },
       {
         style: "Cliffhanger Ending",
-        ending: "As she climbed onto the boat, she heard a voice inside her mind whisper: 'We will meet again, Vance.'",
-        fullStory: "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water that allowed her to ascend safely back to the boat. As she climbed onto the boat, she heard a voice inside her mind whisper: 'We will meet again, Vance.'"
-      }
+        ending:
+          "As she climbed onto the boat, she heard a voice inside her mind whisper: 'We will meet again, Vance.'",
+        fullStory:
+          "Deep below the surface of the cyan lagoon, a creature of ancient wisdom watched the shifts in the tides. It was a bioluminescent manta ray, carrying patterns on its back that mirrored the constellations above. For generations, the fishermen had told stories of the guide that saved lost ships, but none had seen it up close until today. A young diver, searching for lost artifacts, found herself caught in a strong undertow. As her air began to run low, a gentle warmth illuminated the dark water. The ray appeared, gliding effortlessly through the current, creating a path of calm water that allowed her to ascend safely back to the boat. As she climbed onto the boat, she heard a voice inside her mind whisper: 'We will meet again, Vance.'",
+      },
     ];
   }
 
@@ -205,12 +252,13 @@ export async function generateAlternateEndingsWithGemini(
       Return the output as a JSON array of objects with the fields: "style", "ending", and "fullStory".`
     );
     const text = response.response.text();
-    
-    let parsed: any;
+
+    let parsed: unknown;
     try {
       parsed = JSON.parse(sanitizeJsonText(text));
     } catch (parseError: unknown) {
-      const parseErrorMsg = parseError instanceof Error ? parseError.message : String(parseError);
+      const parseErrorMsg =
+        parseError instanceof Error ? parseError.message : String(parseError);
       throw new ApiError(
         httpStatus.INTERNAL_SERVER_ERROR,
         `Gemini returned invalid JSON for alternate endings: ${parseErrorMsg}`
@@ -228,9 +276,9 @@ export async function generateAlternateEndingsWithGemini(
       (item) =>
         item &&
         typeof item === "object" &&
-        typeof item.style === "string" &&
-        typeof item.ending === "string" &&
-        typeof item.fullStory === "string"
+        typeof (item as Record<string, unknown>).style === "string" &&
+        typeof (item as Record<string, unknown>).ending === "string" &&
+        typeof (item as Record<string, unknown>).fullStory === "string"
     );
 
     if (!isValid) {
@@ -240,7 +288,7 @@ export async function generateAlternateEndingsWithGemini(
       );
     }
 
-    return parsed;
+    return parsed as IAlternateEnding[];
   } catch (error: unknown) {
     if (error instanceof ApiError) {
       throw error;
