@@ -34,6 +34,11 @@ router.get(
   PostController.getFeaturedPosts
 );
 
+router.get(
+  "/tag/:tag",
+  PostController.getPostsByTag
+);
+
 router.patch(
   "/featured/:postId",
   auth(),
@@ -43,11 +48,6 @@ router.patch(
 router.get(
   "/:id",
   PostController.getSinglePost
-);
-
-router.get(
-  "/tag/:tag",
-  PostController.getPostsByTag
 );
 
 router.patch(
