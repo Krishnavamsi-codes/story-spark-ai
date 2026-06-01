@@ -322,17 +322,23 @@ const forgotPassword = async (email: string) => {
   if (!email) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email is required!");
   }
+
+  // Same response for real and unknown emails to prevent account enumeration.
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
   const user = await User.findOne({ email });
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, "User not found!");
+  if (user) {
+    // Fire and forget so response timing does not vary with account existence.
+    VerifyEmailService.VerifyEmail({
+      email: user.email,
+      name: user.name || "User",
+    }).catch((err) => {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error(`forgotPassword OTP send failed for ${user.email}: ${message}`);
+    });
   }
-  
-  const result = await VerifyEmailService.VerifyEmail({
-    email: user.email,
-    name: user.name || "User",
-  });
-  
-  return result;
+
+  return { expiresAt };
 };
 
 const resetPassword = async (payload: {
