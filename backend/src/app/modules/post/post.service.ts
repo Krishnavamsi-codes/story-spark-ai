@@ -12,8 +12,79 @@ import {
 } from "../../../interfaces/pagination";
 import paginationHelper from "../../../utils/pagination_helper";
 import { postSearchFields } from "./post.constant";
-import { SortOrder } from "mongoose";
+import { SortOrder, Types } from "mongoose";
 import { GamificationService } from "../gamification/gamification.service";
+
+interface ICursorPayload {
+  value: string;
+  id: string;
+}
+
+const encodeCursor = (item: IPost, sortBy: string) => {
+  const rawValue = item[sortBy as keyof IPost];
+  const value = rawValue instanceof Date ? rawValue.toISOString() : String(rawValue ?? "");
+  return Buffer.from(JSON.stringify({ value, id: item._id?.toString() })).toString("base64");
+};
+
+const decodeCursor = (cursor?: string): ICursorPayload | null => {
+  if (!cursor) {
+    return null;
+  }
+
+  try {
+    const decoded = Buffer.from(cursor, "base64").toString("utf-8");
+    const parsed = JSON.parse(decoded);
+    if (!parsed?.id || parsed.value === undefined) {
+      return null;
+    }
+    return parsed as ICursorPayload;
+  } catch {
+    return null;
+  }
+};
+
+const getCursorCondition = (
+  sortBy: string,
+  orderBy: SortOrder,
+  cursor?: string,
+) => {
+  const parsed = decodeCursor(cursor);
+  if (!parsed) {
+    return null;
+  }
+
+  const { value: rawValue, id } = parsed;
+  let value: string | number | Date = rawValue;
+
+  if (sortBy === "createdAt" || sortBy === "publishedAt") {
+    value = new Date(rawValue);
+  } else if (
+    ["likesCount", "commentsCount", "viewsCount", "bookmarksCount"].includes(
+      sortBy,
+    )
+  ) {
+    value = Number(rawValue);
+  }
+
+  const compareOperator = orderBy === "asc" ? "$gt" : "$lt";
+  const objectId = Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : id;
+
+  return {
+    $or: [
+      {
+        [sortBy]: {
+          [compareOperator]: value,
+        },
+      },
+      {
+        [sortBy]: value,
+        _id: {
+          [compareOperator]: objectId,
+        },
+      },
+    ],
+  };
+};
 
 const createPost = async (payload: IPostPayload, token: ITokenPayload) => {
   const { email, role } = token;
@@ -54,7 +125,9 @@ const getPosts = async (
   filters: IPostSearchFields,
   pagination: IPaginationOptions
 ): Promise<IGenericResponse<IPost[]>> => {
-  const { page, limit, skip, sortBy, orderBy } = paginationHelper(pagination);
+  const { page, limit, cursor, sortBy, orderBy } = paginationHelper(
+    pagination,
+  );
   const { searchTerm, trendingTopic, sortFilter, genres, ...filterData } =
     filters;
   const andCondition: Record<string, unknown>[] = [
@@ -120,7 +193,7 @@ const getPosts = async (
     });
   }
 
-  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const countCondition = andCondition.length > 0 ? { $and: andCondition } : {};
 
   // sort condition
   const sortCondition: { [key: string]: SortOrder } = {};
@@ -131,10 +204,17 @@ const getPosts = async (
   if (sortBy && orderBy) {
     sortCondition[sortBy] = orderBy === "asc" ? 1 : -1;
   }
+  sortCondition._id = orderBy === "asc" ? 1 : -1;
+
+  const cursorCondition = getCursorCondition(sortBy, orderBy, cursor);
+  if (cursorCondition) {
+    andCondition.push(cursorCondition);
+  }
+
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
 
   const result = await Post.find(whereCondition)
     .sort(sortCondition)
-    .skip(skip)
     .limit(limit)
     .populate("author", "name email createdAt")
     .populate({
@@ -142,12 +222,16 @@ const getPosts = async (
       populate: { path: "userId", select: "email" },
     })
     .populate("bookmarks", "email");
-  const total = await Post.countDocuments(whereCondition);
+  const total = await Post.countDocuments(countCondition);
+  const nextCursor = result.length === limit ? encodeCursor(result[result.length - 1], sortBy) : undefined;
+
   return {
     meta: {
       page,
       limit,
       total,
+      nextCursor,
+      hasMore: Boolean(nextCursor),
     },
     data: result,
   };
