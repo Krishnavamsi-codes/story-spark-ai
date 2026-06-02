@@ -8,23 +8,25 @@ import ResourceComponent from "./resources/resources.component";
 import PricingComponent from "./pricing/pricing.component";
 import WriterFeedbackComponent from "./writer_feedback/writer_feedback.component";
 import StartWritingComponent from "./start_writing/start_writing.component";
+import Contactus from "../contactus/contactus";
 import PersonalizedRecommendationsComponent from "./personalized_recommendations/personalized_recommendations.component";
 import { isLoggedIn } from "../../services/auth.service";
-import BackToTop from "../back_home/back_to_top.component";
+import ScrollToTopButton from "../ScrollToTopButton";
 
 const HomeComponent = () => {
   const isLogin = isLoggedIn();
+
   return (
     <>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 pb-10">
-        <div className="grid grid-cols-12 items-start gap-8 mb-10">
-          <div className="col-span-12 lg:col-span-8 min-w-0 flex flex-col gap-8">
+        <div className="grid grid-cols-1 items-start gap-8 mb-10 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)]">
+          <div className="flex w-full min-w-0 max-w-full flex-col gap-8">
             <FeatureComponent />
             <LatestPostsComponent />
           </div>
-          <div className="col-span-12 lg:col-span-4 min-w-0">
-            {/* Added flex flex-col gap-6 to explicitly enforce vertical layout separation */}
-            <div className="sticky top-24 flex flex-col gap-6">
+
+          <div className="w-full min-w-0 max-w-full xl:max-w-[22rem] xl:justify-self-end">
+            <div className="sticky top-24 flex w-full min-w-0 flex-col gap-6">
               {isLogin && <FeatureProfileComponent />}
               {isLogin && <PersonalizedRecommendationsComponent />}
               <TrendingTopicComponent />
@@ -33,12 +35,14 @@ const HomeComponent = () => {
           </div>
         </div>
       </div>
-      <CommunitySpotlightComponent /> 
+
+      <CommunitySpotlightComponent />
       <ResourceComponent />
       <WriterFeedbackComponent />
       <PricingComponent />
       <StartWritingComponent />
-      <BackToTop />
+      <Contactus />
+      <ScrollToTopButton />
     </>
   );
 };

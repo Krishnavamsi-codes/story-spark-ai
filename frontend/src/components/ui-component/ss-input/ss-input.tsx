@@ -35,11 +35,13 @@ const SSInput = <T extends FieldValues>({
 }: SSInputProps<T>) => {
   const [showPassword, setShowPassword] = useState(false);
 
+
   const inputType = type === "password" ? (showPassword ? "text" : "password") : type;
 
   return (
     <div className="w-full min-w-0">
       <label htmlFor={name} className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+
         {label}
       </label>
       <div className="relative w-full">
@@ -51,6 +53,7 @@ const SSInput = <T extends FieldValues>({
             <i className={icon}></i>
           </span>
         )}
+
 
 
         {/* The SINGLE Corrected Input Field with Bulletproof Padding */}
@@ -65,19 +68,24 @@ const SSInput = <T extends FieldValues>({
             paddingLeft: icon ? "3.5rem" : "1.25rem",
             paddingRight: type === "password" ? "3rem" : "1.25rem"
           }}
+
           placeholder={placeholder}
           autoComplete={autoComplete}
           autoFocus={autoFocus}
           {...register(name, validation)}
         />
 
+
         {/* Right Password Eye Toggle */}
+
         {type === "password" && (
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
+
             className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
             aria-label={showPassword ? "Hide password" : "Show password"}
+
           >
             <i className={showPassword ? "fi fi-rr-eye" : "fi fi-rr-eye-crossed"}></i>
           </button>
@@ -86,8 +94,10 @@ const SSInput = <T extends FieldValues>({
 
       {/* Error Message */}
       {error && (
+
         <p className="text-red-500 text-sm mt-2">{error.message}</p>
       )}
+
 
     </div>
   );
