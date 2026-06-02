@@ -463,36 +463,6 @@ useEffect(() => {
   const [generateFreeModel] = useGenerateFreeModelMutation();
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [selectedGenre, setSelectedGenre] = useState<string>("");
-  const [selectedLength, setSelectedLength] = useState<string>("medium");
-  const [textareaValue, setTextareaValue] = useState<string>("");
-  const storyTemplates= [
-  {
-    title: "Fantasy Adventure",
-    prompt:
-      "In a kingdom ruled by dragons, a young warrior discovers an ancient secret that could change the fate of the world.",
-  },
-  {
-    title: "Sci-Fi Mystery",
-    prompt:
-      "In the year 2099, a detective uncovers a conspiracy involving artificial intelligence and missing memories.",
-  },
-  {
-    title: "Horror Story",
-    prompt:
-      "A group of friends enters an abandoned mansion, only to realize they are not alone.",
-  },
-  {
-    title: "Romance",
-    prompt:
-      "Two strangers meet during a train journey and slowly discover a connection that changes their lives forever.",
-  },
-  {
-    title: "Thriller",
-    prompt:
-      "A journalist receives an anonymous message exposing a dangerous secret hidden by powerful people.",
-  },
-];
   const [selectedGenre, setSelectedGenre] = useState<string>(
   draft?.genre
     ? (GENRES.find((g) => g.name === draft.genre || g.value === draft.genre)?.value ?? "🧙 Fantasy")
@@ -625,7 +595,7 @@ useEffect(() => {
       state: {},
     });
   }
-}, [location, navigate]);
+}, [location, navigate, setSelectedGenre, setTextareaValue]);
 
   useEffect(() => {
     setValue("prompt", textareaValue);
@@ -668,7 +638,7 @@ useEffect(() => {
       timeoutId = setTimeout(() => {
         if (isGenerationInProgressRef.current) {
           toast.error("Story generation timed out. Please try again.");
-          handleCancelGeneration();
+          handleCancelGeneration(true);
         }
       }, 60000);
 
@@ -721,12 +691,14 @@ useEffect(() => {
     }
   };
 
-  const handleCancelGeneration = () => {
+  const handleCancelGeneration = (isTimeout = false) => {
     activeGenerationRef.current?.abort();
     activeGenerationRef.current = null;
     isGenerationInProgressRef.current = false;
     setLoading(false);
-    toast("Story generation cancelled.");
+    if (!isTimeout) {
+      toast("Story generation cancelled.");
+    }
   };
 
   const handleClearPrompt = () => {
@@ -748,7 +720,7 @@ useEffect(() => {
 
   const isOverLimit = textareaValue.length >= MAX_PROMPT_LENGTH;
   const isNearLimit = textareaValue.length >= MAX_PROMPT_LENGTH * WARN_THRESHOLD;
-  const isGenerateDisabled = loading || isOverLimit;
+  const isGenerateDisabled = loading || isOverLimit || !textareaValue.trim();
 
   useKeyboardShortcuts({
     onOpenHelp: () => setShowHelpModal(true),
@@ -1290,32 +1262,33 @@ useEffect(() => {
         </div>
       )}
      
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-6">
+          <button
+            onClick={() => setCurrentPage((p) => p - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded bg-slate-700 text-white disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            onClick={() => setCurrentPage((p) => p + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded bg-slate-700 text-white disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
       <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 };
-{totalPages > 1 && (
-  <div className="flex justify-center items-center gap-4 mt-6">
-    <button
-      onClick={() => setCurrentPage((p) => p - 1)}
-      disabled={currentPage === 1}
-      className="px-4 py-2 rounded bg-slate-700 text-white disabled:opacity-50"
-    >
-      Previous
-    </button>
-
-    <span>
-      Page {currentPage} of {totalPages}
-    </span>
-
-    <button
-      onClick={() => setCurrentPage((p) => p + 1)}
-      disabled={currentPage === totalPages}
-      className="px-4 py-2 rounded bg-slate-700 text-white disabled:opacity-50"
-    >
-      Next
-    </button>
-  </div>
-)}
 
 export default StoriesComponent;
