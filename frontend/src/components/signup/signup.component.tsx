@@ -4,6 +4,10 @@ import SSButton from "../ui-component/ss-button/ss-button";
 import { useState, useEffect } from "react";
 import { storeUserInfo } from "../../services/auth.service";
 import toast, { Toaster } from "react-hot-toast";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import logo from "../../assets/logoNew.png";
+import { Link } from "react-router-dom";
+import { useGoogleLoginMutation } from "../../redux/apis/auth.api";
 import {
   useEmailVerifyMutation,
   useVerifyOtpMutation,
@@ -38,7 +42,6 @@ const getPasswordError = (password: string) => {
   if (!/[^A-Za-z0-9]/.test(password)) {
     return "Password must contain at least one special character";
   }
-
   return "";
 };
 
@@ -87,13 +90,17 @@ const SignUpComponent = () => {
   const [emailVerify] = useEmailVerifyMutation();
   const [verifyOtp] = useVerifyOtpMutation();
   const [registerUser] = useRegisterUserMutation();
+  const [googleLogin] = useGoogleLoginMutation();
+
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    unregister,
     formState: { errors },
   } = useForm<Inputs>({ mode: "onChange" });
+
   const [isBusy, setIsBusy] = useState<boolean>(false);
   const [showOtpField, setShowOtpField] = useState<boolean>(false);
   const [registerInfo, setRegisterInfo] = useState<IRegisterInfo>();
@@ -119,12 +126,9 @@ const SignUpComponent = () => {
     special: /[^A-Za-z0-9]/.test(password || ""),
   };
 
-  const passedChecks =
-    Object.values(passwordChecks).filter(Boolean).length;
-
+  const passedChecks = Object.values(passwordChecks).filter(Boolean).length;
   const strengthLevel = getStrengthLevel(passedChecks);
-  const { label: strengthLabel, barColor, barWidth, textColor } =
-    PASSWORD_STRENGTH_CONFIG[strengthLevel];
+  const { label: strengthLabel, barColor, barWidth, textColor } = PASSWORD_STRENGTH_CONFIG[strengthLevel];
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     if (data) {
@@ -154,14 +158,15 @@ const SignUpComponent = () => {
           setExpiredAt(new Date(expiresAt).getTime());
           toast.success("OTP sent to your email");
           setRegisterInfo(user);
+          unregister("confirmPassword");
+          unregister("password");
+          unregister("name");
+          unregister("email");
           setShowOtpField(true);
           setCooldown(60);
         }
       } catch (error) {
-        const message =
-          (error as { data?: Array<{ message?: string }> })?.data?.[0]
-            ?.message ||
-          "Failed to send OTP. Check backend .env email credentials.";
+        const message = (error as { data?: Array<{ message?: string }> })?.data?.[0]?.message || "Failed to send OTP. Check backend .env email credentials.";
         toast.error(message);
       } finally {
         setIsBusy(false);
@@ -205,9 +210,7 @@ const SignUpComponent = () => {
         throw new Error("No verification token received");
       }
     } catch (err: unknown) {
-      const message =
-        (err as { data?: Array<{ message?: string }> })?.data?.[0]?.message ||
-        "OTP verification failed. Please check the code and try again.";
+      const message = (err as { data?: Array<{ message?: string }> })?.data?.[0]?.message || "OTP verification failed. Please check the code and try again.";
       toast.error(message);
     } finally {
       setIsBusy(false);
@@ -235,19 +238,39 @@ const SignUpComponent = () => {
         setCooldown(60);
       }
     } catch (error) {
-      const message =
-        (error as { data?: Array<{ message?: string }> })?.data?.[0]
-          ?.message || "Failed to resend OTP. Please try again.";
+      const message = (error as { data?: Array<{ message?: string }> })?.data?.[0]?.message || "Failed to resend OTP. Please try again.";
       toast.error(message);
     } finally {
       setIsBusy(false);
     }
   };
 
-  return (
-    <div className="min-h-[calc(100dvh-4.5rem)] bg-slate-900 text-slate-100 flex items-center justify-center relative overflow-hidden px-4 py-8">
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
+  const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    setIsBusy(true);
+    try {
+      const res = await googleLogin({
+        token: credentialResponse.credential,
+      }).unwrap();
 
+      if (res.data.accessToken) {
+        toast.success("User logged in successfully with Google!");
+        storeUserInfo({ accessToken: res.data.accessToken });
+        navigate("/");
+      }
+    } catch {
+      toast.error("Failed to login with Google. Please try again.");
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleGoogleLoginError = () => {
+    toast.error("Google login failed. Please try again.");
+  };
+
+  return (
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-12 relative overflow-hidden text-slate-900 dark:text-slate-100">
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="flex w-full max-w-md flex-col justify-center py-12 relative z-10 px-4">
@@ -299,8 +322,7 @@ const SignUpComponent = () => {
                   },
                   pattern: {
                     value: /^[A-Za-z0-9\s._]+$/,
-                    message:
-                      "Only letters, numbers, spaces, underscores, and dots are allowed",
+                    message: "Only letters, numbers, spaces, underscores, and dots are allowed",
                   },
                 }}
                 error={errors.name}
@@ -333,36 +355,31 @@ const SignUpComponent = () => {
               {password?.length > 0 && (
                 <div className="space-y-3 -mt-2 min-w-0 overflow-hidden">
                   <div
-                    className="w-full h-2 bg-slate-700 rounded-full overflow-hidden"
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden select-none"
                     role="progressbar"
                     aria-valuenow={passedChecks}
                     aria-valuemin={0}
                     aria-valuemax={PASSWORD_REQUIREMENTS.length}
                     aria-label="Password strength"
                   >
-                    <div
-                      className={`h-full transition-all duration-300 ${barColor} ${barWidth}`}
-                    ></div>
+                    <div className={`h-full transition-all duration-300 ${barColor} ${barWidth}`} />
                   </div>
 
-                  <p
-                    className={`text-sm font-medium truncate ${textColor}`}
-                    aria-live="polite"
-                  >
+                  <p className={`text-xs font-bold uppercase tracking-wider select-none ${textColor}`} aria-live="polite">
                     {strengthLabel} Password
                   </p>
 
-                  <ul className="space-y-1 text-xs min-w-0">
+                  <ul className="space-y-1.5 list-none p-0 m-0 w-full box-border text-[11px] font-medium">
                     {PASSWORD_REQUIREMENTS.map(({ key, label }) => {
                       const met = passwordChecks[key];
                       return (
                         <li
                           key={key}
-                          className={`${met ? "text-green-400" : "text-red-400"} truncate`}
+                          className={`flex items-center gap-2 ${met ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-600"}`}
                           aria-label={`${label}: ${met ? "met" : "not met"}`}
                         >
-                          <span aria-hidden="true">{met ? "✔️" : "❌"}</span>{" "}
-                          {label}
+                          <i className={`fa-solid ${met ? "fa-circle-check" : "fa-circle-xmark"} text-xs shrink-0`} aria-hidden="true" />
+                          <span>{label}</span>
                         </li>
                       );
                     })}
@@ -390,10 +407,12 @@ const SignUpComponent = () => {
                 error={errors.confirmPassword}
               />
 
-              <SSButton text="Sign Up" type="submit" isLoading={isBusy} />
+              <div className="pt-2">
+                <SSButton text="Sign Up" type="submit" isLoading={isBusy} />
+              </div>
             </form>
           ) : (
-            <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-5 w-full box-border">
               <SSInput
                 label="OTP"
                 name="otp"
@@ -426,12 +445,12 @@ const SignUpComponent = () => {
                 isLoading={isBusy}
               />
 
-              <div className="text-center mt-2">
+              <div className="text-center pt-2 select-none">
                 <button
                   type="button"
                   onClick={handleResendOtp}
                   disabled={cooldown > 0 || isBusy}
-                  className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 disabled:text-gray-500 transition-colors duration-200 focus:outline-none disabled:cursor-not-allowed"
+                  className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 disabled:text-slate-400 dark:disabled:text-slate-600 transition-colors duration-150 focus:outline-none disabled:cursor-not-allowed cursor-pointer"
                 >
                   {cooldown > 0 ? `Resend OTP (${cooldown}s)` : "Resend OTP"}
                 </button>
@@ -440,15 +459,35 @@ const SignUpComponent = () => {
           )}
 
           {!showOtpField && (
-            <p className="mt-8 text-center text-sm text-slate-400">
-              Already have an account?{" "}
-              <a
-                href="/login"
-                className="font-semibold text-blue-400 hover:text-blue-300 transition-colors duration-200"
-              >
-                Sign In
-              </a>
-            </p>
+            <>
+              <div className="relative my-8 w-full box-border">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white dark:bg-slate-900 px-4 text-slate-400 dark:text-slate-500 font-medium">
+                    Or
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex justify-center w-full box-border">
+                <GoogleLogin
+                  onSuccess={handleGoogleLoginSuccess}
+                  onError={handleGoogleLoginError}
+                />
+              </div>
+
+              <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Sign In
+                </Link>
+              </p>
+            </>
           )}
         </div>
       </div>

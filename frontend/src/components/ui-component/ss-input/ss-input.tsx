@@ -26,6 +26,7 @@ const SSInput = <T extends FieldValues>({
   name,
   type = "text",
   placeholder,
+  required,
   icon,
   register,
   validation,
@@ -34,6 +35,7 @@ const SSInput = <T extends FieldValues>({
   autoFocus
 }: SSInputProps<T>) => {
   const [showPassword, setShowPassword] = useState(false);
+
 
 
 
@@ -52,6 +54,7 @@ const SSInput = <T extends FieldValues>({
           <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500 pointer-events-none">
 
 
+
             <i className={icon}></i>
           </span>
         )}
@@ -63,6 +66,7 @@ const SSInput = <T extends FieldValues>({
           type={inputType}
           id={name}
 
+
           className={`w-full h-[52px] box-border text-base text-gray-900 dark:text-white bg-gray-100 dark:bg-[#131c2f] border rounded-2xl placeholder:text-gray-500 focus:outline-none transition-all ${error
               ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
               : "border-black/10 dark:border-white/10 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
@@ -73,11 +77,20 @@ const SSInput = <T extends FieldValues>({
           }}
 
 
+
           placeholder={placeholder}
           autoComplete={autoComplete}
           autoFocus={autoFocus}
           {...register(name, validation)}
+          className={`w-full h-11 block box-border rounded-xl border bg-transparent text-sm transition-all duration-200 focus:outline-none focus:ring-2 ${
+            icon ? "pl-10" : "px-4"
+          } ${type === "password" ? "pr-10" : "pr-4"} ${
+            error
+              ? "border-rose-500 focus:ring-rose-500/20 focus:border-rose-500 text-rose-900 dark:text-rose-200"
+              : "border-slate-200 dark:border-slate-700 text-gray-900 dark:text-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+          }`}
         />
+
 
 
         {/* Right Password Eye Toggle */}
@@ -104,6 +117,7 @@ const SSInput = <T extends FieldValues>({
 
         <p className="text-red-500 text-sm mt-2">{error.message}</p>
       )}
+
 
 
 

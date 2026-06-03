@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -50,9 +51,7 @@ const LoginComponent = () => {
     }
   };
 
-  const handleGoogleLoginSuccess = async (
-    credentialResponse: CredentialResponse
-  ) => {
+  const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
     setIsBusy(true);
     try {
       const res = await googleLogin({
@@ -174,62 +173,65 @@ const LoginComponent = () => {
               autoComplete="email"
               />
 
-            {/* Password field — eye icon toggle is provided by SSInput when type="password" */}
-            <SSInput
-              label="Password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              required={true}
-              icon="fi fi-rr-lock"
-              register={register}
-              validation={{ required: "Password is required" }}
-              error={errors.password}
-              autoComplete="password"
-            />
-
-            <div className="flex justify-end -mt-2">
-              <Link
-                to="/forgot-password"
-                className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors duration-200"
-              >
-                Forgot Password?
-              </Link>
+            <div>
+              <SSInput
+                label="Password"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                required={true}
+                icon="fi fi-rr-lock"
+                register={register}
+                validation={{ required: "Password is required" }}
+                error={errors.password}
+              />
+              <div className="flex justify-end pt-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline transition-colors"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
             </div>
 
-            <SSButton text="Sign In" type="submit" isLoading={isBusy} />
+            <div className="pt-2">
+              <SSButton text="Sign In" type="submit" isLoading={isBusy} />
+            </div>
           </form>
 
-          <div className="mt-6 relative w-full">
-            <div className="absolute inset-0 flex items-center w-full">
-              <div className="w-full border-t border-slate-200 dark:border-slate-700" />
+          {/* Custom Form Divider */}
+          <div className="relative my-8 w-full box-border">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200 dark:border-slate-800" />
             </div>
-            <div className="relative flex justify-center text-sm w-full">
-              <span className="px-4 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                OR
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white dark:bg-slate-900 px-4 text-slate-400 dark:text-slate-500 font-semibold tracking-wide">
+                Or
               </span>
             </div>
           </div>
 
-          <div className="mt-6 flex justify-center list-none w-full">
+          {/* Social Identity OAuth Block Container */}
+          <div className="flex justify-center list-none w-full box-border">
             <GoogleLogin
               onSuccess={handleGoogleLoginSuccess}
               onError={handleGoogleLoginError}
             />
           </div>
 
-          <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
-            Don&apos;t have an account?{" "}
+          <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400 font-medium">
+            Don't have an account?{" "}
             <Link
               to="/signup"
-              className="font-semibold text-blue-400 hover:text-blue-300 transition-colors duration-200"
+              className="font-bold text-blue-600 dark:text-blue-400 hover:underline transition-colors"
             >
               Sign up for free
             </Link>
           </p>
+        </div>
 
-        </motion.div>
-      </motion.div>
+      </div>
 
       <Toaster position="top-right" reverseOrder={false} />
     </div>
