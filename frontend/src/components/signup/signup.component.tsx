@@ -1,4 +1,4 @@
-﻿import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import SSInput from "../ui-component/ss-input/ss-input";
 import SSButton from "../ui-component/ss-button/ss-button";
 import { useState, useEffect } from "react";
@@ -361,7 +361,13 @@ const SignUpComponent = () => {
                         className={`${met ? "text-green-400" : "text-red-400"} truncate`}
                         aria-label={`${label}: ${met ? "met" : "not met"}`}
                       >
-                        <span aria-hidden="true">{met ? "Γ£à" : "Γ¥î"}</span>{" "}
+                        <span aria-hidden="true" className="mr-1.5">
+                          {met ? (
+                            <i className="fa-solid fa-circle-check"></i>
+                          ) : (
+                            <i className="fa-solid fa-circle-xmark"></i>
+                          )}
+                        </span>{" "}
                         {label}
                       </li>
                     );

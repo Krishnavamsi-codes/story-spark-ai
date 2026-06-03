@@ -1,4 +1,4 @@
-﻿import { FC } from "react";
+import { FC } from "react";
 import { motion } from "framer-motion";
 import { SetupStep } from "../help_center.utils";
 
@@ -81,7 +81,7 @@ const SetupGuide: FC<SetupGuideProps> = ({ steps }) => {
               <code className="text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-gray-900/50 px-1.5 py-0.5 rounded">
                 .env.example
               </code>{" "}
-              files ΓÇö never commit real{" "}
+              files - never commit real{" "}
               <code className="text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-gray-900/50 px-1.5 py-0.5 rounded">
                 .env
               </code>{" "}

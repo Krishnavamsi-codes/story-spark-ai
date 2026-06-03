@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { getShortenedText, ITopicData, topicsData, getWordCount, SELECTED_TOPIC_CLASSES } from "./stories.utils";
 import toast, { Toaster } from "react-hot-toast";
 import { useCreatePostMutation, useDeletePostMutation } from "../../redux/apis/post.api";
@@ -742,15 +742,15 @@ if (isLoading) {
                 {selectedStory?.title}
               </h1>
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center rounded-full bg-purple-900/60 text-purple-300 border border-purple-700/50 py-1 px-3 text-xs font-semibold">
-                  ≡ƒÄ¡ {selectedStory.tag}
+                <span className="inline-flex items-center rounded-full bg-purple-900/60 text-purple-300 border border-purple-700/50 py-1 px-3 text-xs font-semibold gap-1">
+                  <i className="fa-solid fa-masks-theater"></i> {selectedStory.tag}
                 </span>
-                <span className="inline-flex items-center rounded-full bg-blue-900/60 text-blue-300 border border-blue-700/50 py-1 px-3 text-xs font-semibold">
-                  ≡ƒîÉ {selectedStory.language || "English"}
+                <span className="inline-flex items-center rounded-full bg-blue-900/60 text-blue-300 border border-blue-700/50 py-1 px-3 text-xs font-semibold gap-1">
+                  <i className="fa-solid fa-globe"></i> {selectedStory.language || "English"}
                 </span>
                 {selectedStory.emotions && selectedStory.emotions.length > 0 && (
-                  <span className="inline-flex items-center rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 py-1 px-3 text-xs font-semibold">
-                    ≡ƒÿè {selectedStory.emotions.join(", ")}
+                  <span className="inline-flex items-center rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 py-1 px-3 text-xs font-semibold gap-1">
+                    <i className="fa-regular fa-face-smile"></i> {selectedStory.emotions.join(", ")}
                   </span>
                 )}
               </div>
@@ -815,19 +815,19 @@ if (isLoading) {
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg px-4 py-2 bg-violet-700 text-slate-200 font-semibold cursor-pointer hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg px-4 py-2 bg-violet-700 text-slate-200 font-semibold cursor-pointer hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                   onClick={() => setShowWorldMap(true)}
                   disabled={!selectedStory}
                 >
-                  ≡ƒù║∩╕Å World Map
+                  <i className="fa-solid fa-earth-americas"></i> World Map
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg px-4 py-2 bg-fuchsia-700 text-slate-200 font-semibold cursor-pointer hover:bg-fuchsia-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg px-4 py-2 bg-fuchsia-700 text-slate-200 font-semibold cursor-pointer hover:bg-fuchsia-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                   onClick={() => setShowRemix(true)}
                   disabled={!selectedStory}
                 >
-                  ≡ƒöÇ Remix
+                  <i className="fa-solid fa-arrows-rotate"></i> Remix
                 </button>
                 <button
                   type="button"
@@ -1125,11 +1125,11 @@ if (isLoading) {
                     <div className="inline-flex items-center rounded-full bg-purple-600 py-1 px-3 text-xs font-semibold text-white shadow-sm">
                       {selectedStory.tag.toUpperCase()}
                     </div>
-                    <div className="inline-flex items-center rounded-full bg-indigo-600 py-1 px-3 text-xs font-semibold text-white shadow-sm">
-                      ≡ƒîÉ {(selectedStory.language || "English").toUpperCase()}
+                    <div className="inline-flex items-center rounded-full bg-indigo-600 py-1 px-3 text-xs font-semibold text-white shadow-sm gap-1">
+                      <i className="fa-solid fa-globe"></i> {(selectedStory.language || "English").toUpperCase()}
                     </div>
                     <div className="inline-flex items-center rounded-full bg-slate-700 py-1 px-2.5 text-xs font-medium text-slate-300 shadow-sm gap-1">
-                      ΓÅ▒∩╕Å {calculateReadingTime(selectedStory.content)} min read
+                      <i className="fa-regular fa-clock"></i> {calculateReadingTime(selectedStory.content)} min read
                     </div>
                   </div>
                   <div>
