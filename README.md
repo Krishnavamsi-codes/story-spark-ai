@@ -212,30 +212,32 @@ cp frontend/.env.example frontend/.env
 | Variable | Required | Description |
 |---|---|---|
 | `DATABASE_URL` | ✅ Yes | MongoDB connection string ([Atlas](https://www.mongodb.com/cloud/atlas) or local) |
-| `PORT` | No | API port (default `5000`) |
-| `NODE_ENV` | No | `development` or `production` |
-| `CORS_ORIGINS` | No | Comma-separated allowed frontend URLs (e.g. `http://localhost:4001`) |
+| `PORT` | ❌ No | API port (default `5000`) |
+| `NODE_ENV` | ❌ No | `development` or `production` |
+| `CORS_ORIGINS` | ❌ No | Comma-separated allowed frontend URLs (e.g. `http://localhost:4001`) |
 | `SALT_ROUNDS` | ✅ Yes | bcrypt cost factor (e.g. `10`) |
 | `JWT_SECRET` | ✅ Yes | Access token signing secret |
 | `JWT_REFRESH_SECRET` | ✅ Yes | Refresh token signing secret |
 | `JWT_EXPIRES_IN` | ✅ Yes | Access token lifetime (e.g. `60d`) |
 | `JWT_REFRESH_EXPIRES_IN` | ✅ Yes | Refresh token lifetime (e.g. `120d`) |
 | `DEFAULT_ADMIN_PASSWORD` | ✅ Yes | Initial admin password for seeding |
-| `OPEN_AI_KEY` | For OpenAI | [OpenAI API key](https://platform.openai.com/api-keys) |
-| `GEMINI_API_KEY` | For Gemini | [Google AI Studio key](https://aistudio.google.com/apikey) |
-| `UNSPLASH_KEY_API` | For images | [Unsplash Access Key](https://unsplash.com/developers) |
-| `UNSPLASH_KEY_API_SECRET` | For images | Unsplash secret |
-| `VERIFY_EMAIL` | For email | SMTP sender address |
-| `VERIFY_PASSWORD` | For email | SMTP password or app password |
-| `GOOGLE_CLIENT_ID` | For Google login | [Google Cloud Console](https://console.cloud.google.com) |
+| `OPEN_AI_KEY` | ❌ No | OpenAI API key for GPT models (optional - not required if using Gemini) |
+| `GEMINI_API_KEY` | ❌ No | Google Gemini API key (optional - not required if using OpenAI) |
+| `UNSPLASH_KEY_API` | ❌ No | Unsplash Access Key for story images (optional) |
+| `UNSPLASH_KEY_API_SECRET` | ❌ No | Unsplash secret (optional) |
+| `VERIFY_EMAIL` | ❌ No | SMTP sender address (optional - for email verification) |
+| `VERIFY_PASSWORD` | ❌ No | SMTP password or app password (optional) |
+| `GOOGLE_CLIENT_ID` | ❌ No | Google OAuth Client ID (optional - only for Google login) |
+
+> 💡 **Note:** You only need ONE AI API key (either `OPEN_AI_KEY` or `GEMINI_API_KEY`). Unsplash keys are optional for image generation. Google Client ID is only required if implementing Google OAuth login.
 
 #### Frontend — `frontend/.env`
 
 | Variable | Required | Description |
 |---|---|---|
 | `VITE_BASE_URL` | ✅ Yes | API base URL (e.g. `http://localhost:5000/api/v1`) |
-| `VITE_SOCKET_URL` | No | Socket.IO server URL for real-time notifications |
-| `VITE_GOOGLE_CLIENT_ID` | ✅ Yes | [Google Cloud Console](https://console.cloud.google.com) OAuth Client ID |
+| `VITE_SOCKET_URL` | ❌ No | Socket.IO server URL for real-time notifications (optional) |
+| `VITE_GOOGLE_CLIENT_ID` | ✅ Yes | Google OAuth Client ID from [Google Cloud Console](https://console.cloud.google.com) |
 
 ### Running Locally
 
