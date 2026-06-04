@@ -416,9 +416,8 @@ const TonePicker: React.FC<TonePickerProps> = ({ selected, onChange }) => {
   );
 };
 
-// ---------------------------------------------------------------------------
-// Main StoriesComponent
-// ---------------------------------------------------------------------------
+import { useDebounce } from "../../hooks/useDebounce";
+
 const StoriesComponent = () => {
   const [currentPage, setCurrentPage] = useState(1);
 const storiesPerPage = 10;
@@ -456,10 +455,12 @@ const storiesPerPage = 10;
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchFilter, setSearchFilter] = useState<string>("all");
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 350);
+
   const filteredStories = useMemo(() => {
-    if (!searchQuery.trim()) return stories;
+    if (!debouncedSearchQuery.trim()) return stories;
     
-    const query = searchQuery.toLowerCase();
+    const query = debouncedSearchQuery.toLowerCase();
     
     return stories.filter((story) => {
       switch (searchFilter) {
@@ -478,7 +479,7 @@ const storiesPerPage = 10;
           );
       }
     });
-  }, [stories, searchQuery, searchFilter]);
+  }, [stories, debouncedSearchQuery, searchFilter]);
   const indexOfLastStory = currentPage * storiesPerPage;
 const indexOfFirstStory = indexOfLastStory - storiesPerPage;
 
@@ -492,7 +493,7 @@ const totalPages = Math.ceil(
 );
 useEffect(() => {
   setCurrentPage(1);
-}, [searchQuery, searchFilter]);
+}, [debouncedSearchQuery, searchFilter]);
 
   const { data } = useGetProfileInfoQuery(undefined);
   const userRole = getUserInfo();
