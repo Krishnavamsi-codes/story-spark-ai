@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createDocxBlob, downloadBlob, getSafeFileName, createWorkspaceDocxBlob, exportWorkspacePDF } from "../story-export.utils";
 import jsPDF from "jspdf";
 
@@ -141,3 +142,4 @@ describe("story-export.utils", () => {
     });
   });
 });
+
