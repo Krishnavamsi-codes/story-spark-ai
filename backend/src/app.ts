@@ -8,13 +8,14 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 import httpStatus from "http-status";
+
 import cookieParser from "cookie-parser";
 import config from "./config";
 import { Routers } from "./router";
 import globalErrorHandler from "./app/middleware/global.error.handler";
+import { User } from "./app/modules/user/user.model";
 
 const app: Application = express();
-
 app.set("trust proxy", 1);
 app.use(helmet());
 
@@ -23,8 +24,6 @@ const limiter = rateLimit({
   max: 100,
   message: "Too many requests, please try again later.",
 });
-
-app.use("/api/v1", limiter as unknown as RequestHandler);
 
 app.use(limiter);
 
@@ -41,11 +40,11 @@ const corsOrigins =
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) {
-        return callback(new Error("Origin header required"));
+      if (!origin && process.env.NODE_ENV === 'production') {
+        return callback(new Error('Origin header required in production'));
       }
 
-      if (corsOrigins.includes(origin)) {
+      if (!origin || corsOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error("Blocked by Cross-Origin Resource Sharing (CORS) Policy"));
