@@ -17,7 +17,14 @@ const toggleBookmark = async (storyId: string, token: ITokenPayload) => {
     isDeleted: { $ne: true },
   });
   if (!post) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Story not found!");
+    throw new ApiError(httpStatus.NOT_FOUND, "Story not found!");
+  }
+  if (!post.isPublished) {
+    const isOwner = post.author?.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to access this draft");
+    }
   }
 
   const existingBookmark = await Bookmark.findOne({
@@ -49,6 +56,17 @@ const getBookmarks = async (
 
   const skip = (page - 1) * limit;
 
+  const isPrivileged = user.role === "admin" || user.role === "super_admin";
+  const postFilterMatch = isPrivileged
+    ? { "story.isDeleted": { $ne: true } }
+    : {
+        "story.isDeleted": { $ne: true },
+        $or: [
+          { "story.isPublished": true },
+          { "story.author": user._id },
+        ],
+      };
+
   // Count total bookmarks pointing to non-deleted stories
   const totalAgg = await Bookmark.aggregate([
     { $match: { userId: user._id } },
@@ -61,7 +79,7 @@ const getBookmarks = async (
       },
     },
     { $unwind: "$story" },
-    { $match: { "story.isDeleted": { $ne: true } } },
+    { $match: postFilterMatch },
     { $count: "count" }
   ]);
   const total = totalAgg[0]?.count || 0;
@@ -78,7 +96,7 @@ const getBookmarks = async (
       },
     },
     { $unwind: "$story" },
-    { $match: { "story.isDeleted": { $ne: true } } },
+    { $match: postFilterMatch },
     { $sort: { createdAt: -1 } },
     { $skip: skip },
     { $limit: limit },
@@ -130,6 +148,18 @@ const checkBookmarkStatus = async (storyId: string, token: ITokenPayload) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
   }
 
+  const post = await Post.findOne({ _id: storyId, isDeleted: { $ne: true } });
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Story not found!");
+  }
+  if (!post.isPublished) {
+    const isOwner = post.author?.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to access this draft");
+    }
+  }
+
   const bookmark = await Bookmark.findOne({
     userId: user._id,
     storyId: new Types.ObjectId(storyId),
@@ -143,6 +173,18 @@ const deleteBookmark = async (storyId: string, token: ITokenPayload) => {
   const user = await User.findOne({ email });
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
+  }
+
+  const post = await Post.findOne({ _id: storyId, isDeleted: { $ne: true } });
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Story not found!");
+  }
+  if (!post.isPublished) {
+    const isOwner = post.author?.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to access this draft");
+    }
   }
 
   const deletedBookmark = await Bookmark.findOneAndDelete({

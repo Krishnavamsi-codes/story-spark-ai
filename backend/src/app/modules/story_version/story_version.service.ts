@@ -3,6 +3,7 @@ import { raceGenerationWithTimeout, GenerationTimeoutError } from "../../../util
 import ApiError from "../../../errors/api_error";
 import httpStatus from "http-status";
 import { Post } from "../post/post.model";
+import { User } from "../user/user.model";
 import { StoryVersion } from "./story_version.model";
 import { IStoryVersion } from "./story_version.interface";
 import { IPost } from "../post/post.interface";
@@ -101,7 +102,10 @@ const createBranchVersion = async (
     );
   }
 
-  if (post.author.toString() !== userId) {
+  const isOwner = post.author?.toString() === userId;
+  const user = await User.findById(userId);
+  const isAdmin = user && (user.role === "admin" || user.role === "super_admin");
+  if (!isOwner && !isAdmin) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You do not have permission to create a branch for this story!"
@@ -147,7 +151,10 @@ const getStoryTree = async (
     );
   }
 
-  if (post.author.toString() !== userId) {
+  const isOwner = post.author?.toString() === userId;
+  const user = await User.findById(userId);
+  const isAdmin = user && (user.role === "admin" || user.role === "super_admin");
+  if (!isOwner && !isAdmin) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You do not have access to this story!"
@@ -194,7 +201,13 @@ const getBranchPath = async (
 
   const post = await Post.findById(version.storyId);
 
-  if (!post || post.author.toString() !== userId) {
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Story not found!");
+  }
+  const isOwner = post.author?.toString() === userId;
+  const user = await User.findById(userId);
+  const isAdmin = user && (user.role === "admin" || user.role === "super_admin");
+  if (!isOwner && !isAdmin) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You do not have access to this story!"
@@ -226,7 +239,10 @@ const getVersionsByStoryId = async (
     throw new ApiError(httpStatus.NOT_FOUND, "Story not found!");
   }
 
-  if (post.author.toString() !== userId) {
+  const isOwner = post.author?.toString() === userId;
+  const user = await User.findById(userId);
+  const isAdmin = user && (user.role === "admin" || user.role === "super_admin");
+  if (!isOwner && !isAdmin) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You do not have access to this story history!"
@@ -263,7 +279,13 @@ const getVersionById = async (
   }
 
   const post = await Post.findById(version.storyId);
-  if (!post || post.author.toString() !== userId) {
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Associated story not found!");
+  }
+  const isOwner = post.author?.toString() === userId;
+  const user = await User.findById(userId);
+  const isAdmin = user && (user.role === "admin" || user.role === "super_admin");
+  if (!isOwner && !isAdmin) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You do not have access to this story version!"
@@ -290,7 +312,10 @@ const restoreVersion = async (
     throw new ApiError(httpStatus.NOT_FOUND, "Original story not found!");
   }
 
-  if (post.author.toString() !== userId) {
+  const isOwner = post.author?.toString() === userId;
+  const user = await User.findById(userId);
+  const isAdmin = user && (user.role === "admin" || user.role === "super_admin");
+  if (!isOwner && !isAdmin) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You do not have permission to restore this story!"
@@ -362,7 +387,10 @@ const getCharacterNetwork = async (
     throw new ApiError(httpStatus.NOT_FOUND, "Story not found!");
   }
 
-  if (post.author.toString() !== userId) {
+  const isOwner = post.author?.toString() === userId;
+  const user = await User.findById(userId);
+  const isAdmin = user && (user.role === "admin" || user.role === "super_admin");
+  if (!isOwner && !isAdmin) {
     throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this story history!");
   }
 

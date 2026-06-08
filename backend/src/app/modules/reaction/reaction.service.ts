@@ -15,26 +15,28 @@ const toggleReaction = async (
 ) => {
   const { email } = token;
 
-  const user = await User.findOne({ email }).select("_id").lean();
+  const user = await User.findOne({ email }).select("_id role").lean();
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
   }
 
   const post = await Post.findOne({
-  _id: postId,
-  isDeleted: { $ne: true },
-}).select("likesCount reactions");
     _id: postId,
     isDeleted: { $ne: true },
-  }).select("likesCount reactions");
+  }).select("likesCount reactions isPublished author");
 
   if (!post) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Post not found!");
+    throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
   }
 
-//  main
-    const newReaction = await Reaction.create({
-      postId: new Types.ObjectId(postId),
+  if (!post.isPublished) {
+    const isOwner = post.author.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to react to this draft");
+    }
+  }
+
   const existingReaction = await Reaction.findOne({
     postId: post._id,
     userId: user._id,

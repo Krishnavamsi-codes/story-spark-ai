@@ -21,7 +21,14 @@ const createComment = async (
     isDeleted: { $ne: true },
   });
   if (!post) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Post not found!");
+    throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
+  }
+  if (!post.isPublished) {
+    const isOwner = post.author?.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to comment on this draft");
+    }
   }
   // Use an atomic $inc update instead of the read-modify-write pattern.
   // With concurrent requests, both would read the same commentsCount value
@@ -42,7 +49,22 @@ const createComment = async (
   return res;
 };
 
-const getCommentsByPostId = async (postId: string) => {
+const getCommentsByPostId = async (postId: string, token: ITokenPayload | null) => {
+  const post = await Post.findOne({ _id: postId, isDeleted: { $ne: true } });
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
+  }
+  if (!post.isPublished) {
+    if (!token) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "You are not authorized to access this private draft");
+    }
+    const user = await User.findById(token._id);
+    const isOwner = post.author?.toString() === token._id.toString();
+    const isAdmin = user && (user.role === "admin" || user.role === "super_admin");
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to view comments for this draft");
+    }
+  }
   return await Comment.find({ postId }).populate("userId", "name profile.avatar").sort({ createdAt: -1 });
 };
 
@@ -54,7 +76,7 @@ const toggleCommentLike = async (commentId: string, token: ITokenPayload) => {
   }
   const comment = await Comment.findById(commentId);
   if (!comment) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Comment not found!");
+    throw new ApiError(httpStatus.NOT_FOUND, "Comment not found!");
   }
   const post = await Post.findOne({
     _id: comment.postId,
@@ -62,6 +84,13 @@ const toggleCommentLike = async (commentId: string, token: ITokenPayload) => {
   });
   if (!post) {
     throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
+  }
+  if (!post.isPublished) {
+    const isOwner = post.author?.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to interact with this draft");
+    }
   }
   
   // Replace the read-modify-write likes toggle with atomic MongoDB operators.
@@ -98,9 +127,23 @@ const deleteComment = async (commentId: string, token: ITokenPayload) => {
   if (!comment) {
     throw new ApiError(httpStatus.NOT_FOUND, "Comment not found!");
   }
+  const post = await Post.findOne({
+    _id: comment.postId,
+    isDeleted: { $ne: true },
+  });
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
+  }
+  if (!post.isPublished) {
+    const isOwner = post.author?.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to interact with this draft");
+    }
+  }
   // Only the comment author or an admin/super-admin can delete
   const isAuthor = comment.userId.toString() === user._id.toString();
-  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
+  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN" || user.role === "admin" || user.role === "super_admin";
   if (!isAuthor && !isAdmin) {
     throw new ApiError(
       httpStatus.FORBIDDEN,

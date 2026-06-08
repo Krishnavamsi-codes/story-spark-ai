@@ -363,7 +363,7 @@ const doFeaturedPosts = async (postId: string) => {
   }
 };
 
-const getSinglePost = async (id: string) => {
+const getSinglePost = async (id: string, token?: ITokenPayload | null) => {
   const postById = await Post.findOne({ _id: id, isDeleted: { $ne: true } })
     .populate("author", "name email createdAt")
     .populate({
@@ -374,6 +374,19 @@ const getSinglePost = async (id: string) => {
   if (!postById) {
     throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
   }
+
+  if (!postById.isPublished) {
+    if (!token) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "You are not authorized to access this private draft");
+    }
+    const authorId = (postById.author as any)._id?.toString() || postById.author.toString();
+    const isOwner = authorId === token._id.toString();
+    const isAdmin = token.role === "admin" || token.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to view this draft");
+    }
+  }
+
   return postById;
 };
 
@@ -541,6 +554,14 @@ const remixStory = async (postId: string, prompt: string, token: ITokenPayload) 
     throw new ApiError(httpStatus.NOT_FOUND, "Original story post not found!");
   }
 
+  if (!originalPost.isPublished) {
+    const isOwner = originalPost.author?.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to remix this story");
+    }
+  }
+
   const remixedContent = `[AI Remixed Version based on prompt: "${safePrompt}"]\n\n${originalPost.content}`;
 
   const res = await Post.create({
@@ -577,6 +598,14 @@ const translateStory = async (postId: string, language: string, token: ITokenPay
   const originalPost = await Post.findOne({ _id: postId, isDeleted: { $ne: true } });
   if (!originalPost) {
     throw new ApiError(httpStatus.NOT_FOUND, "Original story post not found!");
+  }
+
+  if (!originalPost.isPublished) {
+    const isOwner = originalPost.author?.toString() === user._id.toString();
+    const isAdmin = user.role === "admin" || user.role === "super_admin";
+    if (!isOwner && !isAdmin) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have permission to translate this story");
+    }
   }
 
   const translatedContent = `[Translated to ${safeLanguage}]\n\n${originalPost.content}`;
