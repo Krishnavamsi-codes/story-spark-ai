@@ -64,12 +64,6 @@ const NavListComponent = () => {
     }),
   };
 
-  const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `block rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-      isActive
-        ? "bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white"
-        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10"
-    }`;
 
   return (
     <header className="sticky top-0 z-50 w-full">
