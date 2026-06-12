@@ -16,6 +16,8 @@ import {
   Star,
   Volume2,
   Volume,
+  ChevronUp,
+ChevronDown,
 } from "lucide-react";
 
 import { useSpeechSynthesis } from "../hooks/useSpeechSynthesis";
@@ -57,6 +59,22 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
     const preview = useVoicePreview();
     const favorites = useVoiceFavorites();
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
+
+const scrollToBottom = () => {
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth",
+  });
+};
+
+const speedSelectId = useId();
 
     const speedSelectId = useId();
     const voiceGenderSelectId = useId();
@@ -437,31 +455,51 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
                     <Volume className="h-4 w-4" />
                     Preview
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => favorites.toggleFavorite(speech.selectedVoiceId)}
-                    disabled={!speech.isReady || speech.voices.length === 0}
-                    title={
-                      favorites.isFavorite(speech.selectedVoiceId)
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                    }
-                    aria-label={
-                      favorites.isFavorite(speech.selectedVoiceId)
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                    }
-                    className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-slate-950 ${favorites.isFavorite(speech.selectedVoiceId)
-                        ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
-                        : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                      }`}
-                  >
-                    <Star
-                      className="h-4 w-4"
-                      fill={favorites.isFavorite(speech.selectedVoiceId) ? "currentColor" : "none"}
-                    />
-                    Favorite
-                  </button>
+                 <button
+  type="button"
+  onClick={() => favorites.toggleFavorite(speech.selectedVoiceId)}
+  disabled={!speech.isReady || speech.voices.length === 0}
+  title={
+    favorites.isFavorite(speech.selectedVoiceId)
+      ? "Remove from favorites"
+      : "Add to favorites"
+  }
+  aria-label={
+    favorites.isFavorite(speech.selectedVoiceId)
+      ? "Remove from favorites"
+      : "Add to favorites"
+  }
+  className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-slate-950 ${favorites.isFavorite(speech.selectedVoiceId)
+      ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
+      : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+    }`}
+>
+  <Star
+    className="h-4 w-4"
+    fill={favorites.isFavorite(speech.selectedVoiceId) ? "currentColor" : "none"}
+  />
+  Favorite
+</button>
+
+<button
+  type="button"
+  onClick={scrollToTop}
+  title="Scroll to top"
+  aria-label="Scroll to top"
+  className="inline-flex items-center justify-center rounded-xl border px-3 py-2.5"
+>
+  <ChevronUp className="h-4 w-4" />
+</button>
+
+<button
+  type="button"
+  onClick={scrollToBottom}
+  title="Scroll to bottom"
+  aria-label="Scroll to bottom"
+  className="inline-flex items-center justify-center rounded-xl border px-3 py-2.5"
+>
+  <ChevronDown className="h-4 w-4" />
+</button>
                 </div>
               </div>
             </div>
