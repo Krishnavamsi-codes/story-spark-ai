@@ -107,7 +107,7 @@ export const ExploreComponent = () => {
         {/* Main Layout */}
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
-          <div className="w-full md:w-64 flex-shrink-0">
+          <div className="w-full md:w-64 md:min-w-64 flex-shrink-0">
             <div className="sticky top-4 bg-gray-50 border border-gray-200 text-slate-900 backdrop-blur-xl rounded-2xl p-6 shadow-xl z-10 transition-colors duration-300 dark:bg-slate-900/50 dark:border-none dark:text-white">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -211,8 +211,8 @@ export const ExploreComponent = () => {
           {/* Content */}
           <div className="flex-1 flex flex-col min-h-[70vh]">
             <div className={`${featuredPost ? "mb-6" : ""}`}>
-              <div className="flex justify-between items-center">
-                <div className="flex space-x-4 items-center overflow-x-auto">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex flex-wrap gap-4 items-center">
                   <h2
                     onClick={() => setFeaturedPost(false)}
                     className={`text-3xl font-extrabold mb-6 cursor-pointer transition-all duration-300 ${
