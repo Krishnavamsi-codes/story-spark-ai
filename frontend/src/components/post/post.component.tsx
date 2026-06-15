@@ -114,12 +114,17 @@ export const ExploreComponent = () => {
                   Filters
                 </h3>
 
-                <button
-                  onClick={resetAllStates}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  Reset
-                </button>
+                {(searchTerm ||
+                  selectedTags.length > 0 ||
+                  sortBy !== "createdAt" ||
+                  sortOrder !== "desc") && (
+                  <button
+                    onClick={resetAllStates}
+                    className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    Reset
+                  </button>
+                )}
               </div>
 
               <div className="space-y-6">
@@ -256,6 +261,58 @@ export const ExploreComponent = () => {
 
               {featuredPost && <ExploreFeatureComponent />}
             </div>
+
+            {/* Active Filters Summary */}
+            {(searchTerm.trim() !== "" || selectedTags.length > 0) && (
+              <div className="mb-6 flex flex-wrap items-center gap-3 animate-fade-in">
+                <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                  Active Filters:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {searchTerm.trim() !== "" && (
+                    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 text-xs font-medium dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50 shadow-sm transition-all hover:bg-blue-100 dark:hover:bg-blue-900/50">
+                      <i className="fas fa-search text-[10px] opacity-70"></i>
+                      Search: "{searchTerm}"
+                      <button
+                        onClick={() => {
+                          setSearchTerm("");
+                          setPage(1);
+                        }}
+                        className="ml-1 hover:text-blue-900 dark:hover:text-blue-100 transition-colors cursor-pointer"
+                        aria-label="Remove search filter"
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                    </span>
+                  )}
+
+                  {selectedTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-medium dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800/50 shadow-sm transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
+                    >
+                      <i className="fas fa-tag text-[10px] opacity-70"></i>
+                      {tag.startsWith("#") ? tag : `#${tag}`}
+                      <button
+                        onClick={() => handleTagClick(tag)}
+                        className="ml-1 hover:text-indigo-900 dark:hover:text-indigo-100 transition-colors cursor-pointer"
+                        aria-label={`Remove ${tag} filter`}
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                    </span>
+                  ))}
+
+                  <button
+                    onClick={resetAllStates}
+                    className="ml-2 text-xs font-bold text-blue-600 hover:text-blue-500 transition-colors dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1 group cursor-pointer"
+                  >
+                    Clear All
+                    <i className="fas fa-trash-can text-[10px] group-hover:rotate-12 transition-transform"></i>
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="flex-grow">
               {!isLoading && filteredPosts.length === 0 ? (
