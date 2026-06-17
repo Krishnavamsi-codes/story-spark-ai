@@ -400,8 +400,8 @@ function toggleAuthMode(mode) {
             if (passwordField) passwordField.setAttribute('autocomplete', 'new-password');
             
             // Tabs styling
-            if (tabSignup) tabSignup.className = "flex-1 pb-3 font-label-caps text-label-caps text-primary border-b-2 border-primary transition-all duration-300";
-            if (tabSignin) tabSignin.className = "flex-1 pb-3 font-label-caps text-label-caps text-on-surface-variant border-b-2 border-transparent hover:text-on-surface transition-all duration-300";
+            if (tabSignup) tabSignup.className = "auth-tab-button flex-1 pb-3 font-label-caps text-label-caps text-primary border-b-2 border-primary transition-all duration-300 active";
+            if (tabSignin) tabSignin.className = "auth-tab-button flex-1 pb-3 font-label-caps text-label-caps text-on-surface-variant border-b-2 border-transparent hover:text-on-surface transition-all duration-300";
             
             // FIX: Use javascript void anchors to prevent hard page refreshes on interaction links
             if (navToggle) {
@@ -425,8 +425,8 @@ function toggleAuthMode(mode) {
             if (passwordField) passwordField.setAttribute('autocomplete', 'current-password');
             
             // Tabs styling
-            if (tabSignin) tabSignin.className = "flex-1 pb-3 font-label-caps text-label-caps text-primary border-b-2 border-primary transition-all duration-300";
-            if (tabSignup) tabSignup.className = "flex-1 pb-3 font-label-caps text-label-caps text-on-surface-variant border-b-2 border-transparent hover:text-on-surface transition-all duration-300";
+            if (tabSignin) tabSignin.className = "auth-tab-button flex-1 pb-3 font-label-caps text-label-caps text-primary border-b-2 border-primary transition-all duration-300 active";
+            if (tabSignup) tabSignup.className = "auth-tab-button flex-1 pb-3 font-label-caps text-label-caps text-on-surface-variant border-b-2 border-transparent hover:text-on-surface transition-all duration-300";
             
             // FIX: Use javascript void anchors to prevent hard page refreshes on interaction links
             if (navToggle) {

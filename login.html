@@ -37,9 +37,9 @@
 </head>
 <body class="bg-background text-on-surface font-body-md selection:bg-primary/30">
 <div class="min-h-screen flex items-center justify-center p-4 md:p-0">
-<main class="auth-container flex flex-col md:flex-row overflow-hidden md:rounded-2xl shadow-2xl">
+<main class="auth-container">
     
-    <section class="relative w-full md:w-1/2 flex items-center justify-center p-8 md:p-12 overflow-hidden bg-surface-container-lowest left-pane-mobile">
+    <section class="relative auth-left-pane w-full md:w-1/2 flex items-center justify-center p-8 md:p-12 overflow-hidden bg-surface-container-lowest left-pane-mobile">
         <canvas id="particle-canvas"></canvas>
         <div class="left-pane-overlay"></div>
         <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-tertiary/5 z-0"></div>
@@ -78,7 +78,7 @@
         </div>
     </section>
     
-    <section class="w-full md:w-1/2 flex items-center justify-center p-4 md:p-10 bg-surface z-10">
+    <section class="auth-right-pane w-full md:w-1/2 flex items-center justify-center p-4 md:p-10 bg-surface z-10">
         <div class="auth-form-card glass-panel p-6 md:p-8 rounded-2xl relative">
 
             <!-- Close button — returns user to previous page -->
@@ -96,14 +96,14 @@
                 </div>
             </div>
 
-            <div class="mb-5">
-                <h2 class="text-[20px] font-bold text-on-surface leading-tight" id="form-title">Welcome back</h2>
-                <p class="text-[13px] text-on-surface-variant mt-1" id="form-subtitle">Sign in to continue your story journey.</p>
+            <div class="auth-form-header mb-5">
+                <h2 class="auth-form-title" id="form-title">Welcome back</h2>
+                <p class="auth-form-subtitle" id="form-subtitle">Sign in to continue your story journey.</p>
             </div>
             
-            <div class="flex border-b border-white/10 mb-5 overflow-hidden">
-                <button class="flex-1 pb-3 font-label-caps text-label-caps text-primary border-b-2 border-primary transition-all duration-300" id="tab-signin" onclick="toggleAuthMode('signin')">LOG IN</button>
-                <button class="flex-1 pb-3 font-label-caps text-label-caps text-on-surface-variant border-b-2 border-transparent hover:text-on-surface transition-all duration-300" id="tab-signup" onclick="toggleAuthMode('signup')">CREATE ACCOUNT</button>
+            <div class="auth-tabs">
+                <button class="auth-tab-button auth-tab active flex-1 pb-3" id="tab-signin" onclick="toggleAuthMode('signin')">Log In</button>
+                <button class="auth-tab-button flex-1 pb-3" id="tab-signup" onclick="toggleAuthMode('signup')">Create Account</button>
             </div>
             
             <div class="mb-4">
