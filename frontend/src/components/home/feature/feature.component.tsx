@@ -8,6 +8,7 @@ import BookmarkButton from "../../BookmarkButton";
 import React, { useState } from "react";
 import { FaLinkedin, FaEnvelope, FaLink } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import ImageFallback from "../../ImageFallback";
 import { SkeletonGrid } from "../../cards/SkeletonCard";
 
 const FeatureComponent = () => {
@@ -72,7 +73,7 @@ const FeatureComponent = () => {
               >
                 {post.imageURL && (
                   <div className="relative overflow-hidden h-48 w-full">
-                    <img
+                    <ImageFallback
                       className="motion-image h-full w-full object-cover"
                       src={post.imageURL}
                       alt={post.title || "Featured Post"}

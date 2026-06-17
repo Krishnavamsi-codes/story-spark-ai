@@ -4,6 +4,7 @@ import { Post } from "../../models/post";
 import BookmarkButton from "../BookmarkButton";
 import SSProfile from "../ui-component/ss-profile/ss-profile";
 import { formatReadingStats } from "../../utils/story-utils";
+import ImageFallback from "../ImageFallback";
 import { SkeletonGrid } from "../cards/SkeletonCard";
 
 interface IExploreViewListComponentProps {
@@ -49,10 +50,9 @@ const ExploreViewListComponent: React.FC<IExploreViewListComponentProps> = ({
             >
               <div className="relative overflow-hidden bg-slate-200 dark:bg-slate-800">
                 {!imageErrors[story._id] && story.imageURL ? (
-                  <img
+                  <ImageFallback
                     src={story.imageURL}
                     alt={`Cover image for ${story.title}`}
-                    onError={() => handleImageError(story._id)}
                     className="w-full h-52 object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                   />
                 ) : (
