@@ -1,11 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import {
-  getShortenedText,
-  ITopicData,
-  topicsData,
-  getWordCount,
-  SELECTED_TOPIC_CLASSES,
-} from "./stories.utils";
+import { getShortenedText, ITopicData, topicsData, getWordCount, SELECTED_TOPIC_CLASSES } from "./stories.utils";
+import { formatReadingStats } from "../../utils/story-utils";
 import toast, { Toaster } from "react-hot-toast";
 import {
   useCreatePostMutation,
@@ -49,7 +44,6 @@ interface StoriesComponentProps {
   isLogin: boolean;
   setStories: (stories: IStories[]) => void;
   onPublishSuccess?: () => void;
-  isLoading?: boolean;
 }
 
 type StorySentenceSegment = {
@@ -307,13 +301,6 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
   useEffect(() => {
     setSelectTopics(topics.filter((topic) => topic.selected));
   }, [topics]);
-
-  useEffect(() => {
-    const player = audioPlayerRef.current;
-    return () => {
-      player?.stop();
-    };
-  }, [location.pathname]);
 
   useEffect(() => {
     setNarrationWordIndex(0);
